@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export function TodoListItem({ id, text, checked }) {
-    const [checkedState, setCheckedState] = useState(checked);
+export default function TodoListItem({ id, text, checked }) {
+  const [checkedState, setCheckedState] = useState(() => {
+    const saved = JSON.parse(localStorage.getItem(id));
+    return saved === null ? checked : saved;
+  });
 
-    function changeCheckboxValue() {
-        setCheckedState(!checkedState);
-    }
+  useEffect(
+    () => localStorage.setItem(id, JSON.stringify(checkedState)), [id, checkedState]
+  );
 
-    return (
-        <>
-            <input id={`check-${id}`} type="checkbox" onChange={changeCheckboxValue} checked={checkedState}/>
-            <label htmlFor={`check-${id}`}>{ text }</label><br/>
-        </>
-    )
+  return (
+    <div>
+      <input id={`check-${id}`} type="checkbox" onChange={({ target }) => setCheckedState(target.checked)} checked={checkedState} />
+      <label htmlFor={`check-${id}`}>{text}</label>
+    </div>
+  );
 }
